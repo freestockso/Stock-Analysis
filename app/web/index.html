@@ -1,0 +1,243 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <title>Report - 滚动你的利润，止住你的亏损</title>
+        <script type="text/javascript" charset="utf-8" src="js/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+        <link rel="stylesheet" href="css/common.css" type="text/css" media="screen" charset="utf-8">
+        <style>
+            .table{
+                border:1px solid #ccc;
+                width:800px;
+                border-collapse:collapse;
+            }
+            .table th{
+                padding:8px 4px;
+                border:1px #eee;
+                border-style:none dashed solid dashed;
+            }
+            .table td{
+                padding:8px;
+                border:1px #eee;
+                border-style:none dashed solid dashed;
+            }
+            .stock_code_name{
+                width:140px;
+            }
+            .good{
+                color:orange;
+            }
+            .great{
+                color:red;
+            }
+            #profile,#statistics,#report,h2{
+                margin : 10px 0 10px 300px;
+                width : 900px;
+            }
+
+            .sub-text{color:gray}
+            .viewDetail{cursor:pointer}
+            .detail{display:none}
+
+        </style>
+    </head>
+    <body>
+        <div id="wrap">
+            <!-- 导航栏和菜单 -->
+            <div id="header">
+                <div id="title"><h1><a href="index.html">report</a></h1></div>
+                <div id="nav"><span class="button selected" title="报告">report</span><a href="strategic.html" title="策略"><span class="button">strategic</span></a><a href="tool.html" title="工具"><span class="button">tool</span></a></div>
+                <div id="menu"><span class="button" onclick="toggleSidebar(event);">显示菜单</span></div>
+                <div style="clear:both;"></div>
+            </div>
+
+            <!-- 侧边栏 -->
+             <div id="sidebar">
+                <div class="block">
+                    <span class="button" onclick="oApp.showPre()">&nbsp;&lt;&nbsp;</span>&nbsp;&nbsp;<input type="text" name="date" value="" id="date">&nbsp;&nbsp;<span class="button" onclick="oApp.showNext()">&nbsp;&gt;&nbsp;</span>&nbsp;&nbsp;
+                    
+                    <br><input type="input" class="num" name="add_date_value" id="add_date_value"><span id="add_data_by_date" class="button" onclick="oApp.add('#add_date_value')">比较</span>
+                    <br><button id="instant" class="button">instant</button>
+                </div>   
+            </div>
+
+            <!-- 内容 -->
+            <h2 title ='验证理论成功概率:80%个股收盘价大于30日均价时---大盘即将见顶；5%以内个股收盘价大于30日均价时---大盘见底' >概况</h2>
+            <div id="profile"></div>
+            <h2>系统精确度统计</h2>
+            <div id="statistics"></div>
+            <h2>报告</h2>
+            <div id="report">
+                <div id="content_tpl" style="display:none">
+                    <table id="report_table" class="table">
+                    <thead>
+                        <th class="stock_code_name">股票名/代码</th><th>命中模型</th><th>命中事件</th><th>概率</th>
+                    </thead>
+                    <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            
+            
+        </div>
+    </body>
+    <script type="text/javascript" charset="utf-8" src="js/viewport.js"></script>   
+    <script type="text/javascript" charset="utf-8">
+    //显示信息
+    var reporter=function(options){
+        var me = this;
+        viewport.call(this,options);
+        this.tpl="";
+
+        $(".viewDetail").live("click",function(e){
+            me.viewDetail(e);
+            });
+    }
+    reporter.prototype=$.extend(true,{},viewport.prototype);
+
+    reporter.prototype.formatData=function(data){
+        this.profile();
+        this.statistics();
+        return data;
+    }
+    reporter.prototype.getStat=function(data){
+        var statistics = "";
+        var value="";
+        for (var item in data){
+            statistics =statistics + item + "<br>";
+            if (data[item]>=0.9){
+                value =value + "<span class='great'>"+data[item] + "</span><br>";
+            }else if (data[item]>=0.8){
+                value =value + "<span class='good'>"+data[item] + "</span><br>";
+            }else{
+                value =value + data[item] + "<br>";
+            }
+        }
+        return res = {"statistics":statistics,"value":value};
+    }
+    reporter.prototype.buildHtml=function(data){
+        var segments = [] ;
+        for (var code in data){
+            if (data[code] && data[code]['strategic']){
+                var stat=this.getStat(data[code]["statistics"]);
+                var segment="<tr><td>"+this.getCodeUrl(code)+"</td>\
+                <td>"+data[code]['strategic'].join(",&nbsp;&nbsp;")+"</td>\
+                <td>"+stat['statistics']+"</td>\
+                <td>"+stat['value']+"</td></tr>";
+                segments.push(segment);
+            }
+        }
+        if (!this.tpl){
+            var dom=document.getElementById("content_tpl")
+            this.tpl = dom.innerHTML;
+        } 
+        var html=this.tpl.replace("<tbody>","<tbody>"+segments.join(""));
+        return html;
+    }
+    reporter.prototype.profile=function(){
+        var data = $.get("data/statistics/profile/"+this.date+".json",
+                {},
+                function(response){
+                var html ="" ;
+                    for (var key in response){
+                        if (key == "total"){
+                            html = html + "股票总数" + response[key]+"&nbsp;&nbsp;";
+                        }else if (key == "highThanMa30"){
+                        var value = parseInt(response['highThanMa30'])/parseInt(response['total']);
+                        html = html + "大于30日均价" +response[key]+"，占比："+value+(value > 0.8?"<span class='red'>见顶</span>":"")+(value <0.05?"<span class='red'>见底</span>":"")+"&nbsp;&nbsp;&nbsp;&nbsp;";
+                        }else if (key == "lowThanMa30"){
+                        html = html + "小于30日均价" +response[key]+"，占比："+parseInt(response['lowThanMa30'])/parseInt(response['total']);
+                        }
+                        }
+
+                    $("#profile").html(html);
+                },"json");
+    }
+    reporter.prototype.statistics=function(){
+    var me = this;
+    $.get("data/statistics/accuracy/"+this.date+".json",
+        {},
+        function(data){
+            var fmtData=[];
+            for (var statisticsName in data){
+                var statisticsItem = data[statisticsName];
+                var codeHtml = me.getDetail(statisticsItem.detail);
+                var tmpHtml = "<div class='statistics_block'>"+statisticsName+"&nbsp;:&nbsp;";
+                if(statisticsItem.value>0.9){
+                    tmpHtml+="<span class='great'>"+statisticsItem.value+"</span>";
+                }else if(statisticsItem.value>0.8){
+                    tmpHtml+="<span class='good'>"+statisticsItem.value+"</span>";
+                }else{
+                    tmpHtml+=statisticsItem.value;
+                }
+                tmpHtml+='&nbsp;&nbsp;<span class="sub-text">(total:'+statisticsItem.total;
+                tmpHtml+=codeHtml==''?"":',<span class="viewDetail">详细</span>';
+                tmpHtml+=')</span><br>';
+                tmpHtml+=codeHtml;       
+                tmpHtml+="</div>";
+                fmtData.push(tmpHtml);
+            }
+            $("#statistics").html(fmtData.join(""));
+    });
+}
+
+    reporter.prototype.viewDetail=function(e){
+        var event=e||window.event;
+        var target=e.target||e.srcElement;
+        var el=$(".detail",$(target).parents(".statistics_block"));
+        el.toggle();
+    }
+
+    reporter.prototype.getDetail=function(data){
+        var tmpHtml="";
+        for (var date in data){
+            tmpHtml = tmpHtml +"<div class='detail'><h4>"+ date + "</h4>";
+            var detail = data[date];
+            if (detail.matchCode){
+                tmpHtml+="<div class='matchCode block'><h5>matchCode:</h5>";
+            for (var z=0;z<detail.matchCode.length;z++){
+                var mCode=detail.matchCode[z];
+                tmpHtml+=this.getCodeUrl(mCode)+",&nbsp; ";
+                }    
+            tmpHtml+="</div>";
+            }
+
+            if (detail.notMatchCode){
+                tmpHtml+="<div class='notMatchCode block'><h5>notMatchCode</h5>";
+                for (var z=0;z<detail.notMatchCode.length;z++){
+                    var mCode=detail.notMatchCode[z];
+                    tmpHtml+=this.getCodeUrl(mCode)+",&nbsp; ";
+                    }    
+                tmpHtml+="</div>";
+                }
+
+            if (detail.code){
+                tmpHtml+="<div class='code block'><h5>code</h5>";
+                for (var z=0;z<detail.code.length;z++){
+                    var mCode=detail.code[z];
+                    tmpHtml+=this.getCodeUrl(mCode)+",&nbsp;";
+                    }    
+                tmpHtml+="</div>";
+                }
+            tmpHtml =tmpHtml + "</div>"
+        }
+        
+        return tmpHtml;
+    }
+
+var oApp=new reporter({
+    "target":"#report",
+    "datadir":"data/reporter/"
+    });
+
+$("#instant").click(function(){
+    oApp.datadir="data/instant/";
+    oApp.dataFileName="report.json";
+    oApp.show();
+    })
+
+</script>
+</html>
+

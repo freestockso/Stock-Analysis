@@ -1,0 +1,120 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <title>Tool</title>
+        <script type="text/javascript" charset="utf-8" src="js/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+        <link rel="stylesheet" href="css/common.css" type="text/css" media="screen" charset="utf-8">
+        </script>
+        <style type="text/css" media="screen">
+
+        </style>
+
+    </head>
+    <body>
+        <div id="wrap">
+
+            <div id="header">
+                <div id="title"><h1>strategic</h1><span id="date"></span></div>
+                <div id="nav"><a href="index.html" title="报告"><span class="button">report</span></a><a href="strategic.html"><span class="button">strategic</span></a><a href="statistics.html" title="统计"><span class="button">statistic</span></a><span class="button selected">tool</span></div>
+                <div id="menu"><span class="button" onclick="toggleSidebar(event);">显示菜单</span></div>
+
+                <div style="clear:both;"></div>
+            </div>
+
+
+
+
+
+
+            <!-- 侧边栏 -->
+             <div id="sidebar">
+                <div class="block">
+                    <span class="button" onclick="oApp.showPre()">&nbsp;&lt;&nbsp;</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="button" onclick="oApp.showNext()">&nbsp;&gt;&nbsp;</span>
+                    <hr>
+                    <h4>数据查看<span class="forder-icon">-</span></h4>
+                    <input type="input" class="num" name="date_value" id="date_value"><span id="data_by_date" class="button" onclick="oApp.view('#add_date_value')">查看</span>
+                    <hr>
+                    <h4>Finder<span class="forder-icon">-</span></h4>
+                    <p>
+                    <a href="tool/finder/strategic_finder.html">Finder Strategic Result</a><br>
+                    <a href="tool/finder/statistic_finder.html">Finder Statistic Result</a><br>
+                    </p>
+
+                </div>   
+            </div>
+
+
+
+
+            <!-- 内容 -->
+            <div id="content">
+
+
+
+            </div>
+
+
+
+
+
+        </div>
+    </body>
+
+    <script type="text/javascript" charset="utf-8">
+   
+    //显示信息
+
+    var viewStockData=function(options){
+        if(typeof options!=="undefined" && typeof options.date!=="undefined"){
+            //this.show(options);
+        //@todo   
+        
+        }else{
+            //this.show(options);
+        }
+    }
+    
+    viewStockData.prototype.show=function(options){
+        var dataPath="./data/base/";
+        if(typeof options=="string"){
+            var oForm=$('#sidebar');
+            var sDate=$("input[name=show_date_value]",oForm).val();
+            var sCode=$("input[name=code_value]",oForm).val();
+            var dataFile=dataPath+sDate+"/"+sCode+".json";
+        }
+
+
+
+        $.get(dataFile,{},function(data){
+                //console.log(data);
+                var html=[];
+                html.push("<h3>"+sCode+"</h3>"+"date:"+sDate);
+                html.push("<table><tr><th>time</th><th>price</th><th>volume</th></tr>");
+                for (var i=0;i<data.length;i++){
+                if(data[i] && data[i].price!="0.000"){
+                var item=data[i];
+                    html.push("<tr><td>"+item['time']+"</td><td>"+item['price']+"</td><td>"+item['volume']+"</td></tr>");
+                                                
+                    }
+                }
+                html.push("</table>");
+
+                var sContent=html.join("");
+
+                if(!options.type){       
+                    $("#content").html(sContent);
+                    }else if(options.type=="add"){
+                    var sRawContent=$("#content").html();
+                    $("#content").html(sRawContent+sContent);
+                    }else{
+                        
+                    //empty
+                    }
+        },"json")
+}
+        
+    var oViewStockData=new viewStockData();
+    </script>
+</html>

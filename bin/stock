@@ -1,0 +1,77 @@
+#!/bin/bash
+
+############[ 配置 ]##############
+CUR_PATH=`pwd`
+SYS_HOME="/Users/xyz/Codes/stock/"
+APP_HOME=${SYS_HOME}"app/"
+WEB_SERVER_PORT=8090
+WEB_DIR=${SYS_HOME}"app/web/"
+DETAIL_PATH="/Volumes/ipod/Stock/data/detail/"
+
+###########[ 函数封装 ]###########
+usage ()
+{
+    echo "
+stock start -- 启动程序
+stock update -- 更新数据
+stock refresh -- 重新计算所有数据
+stock web -- 打开web界面
+"
+}
+
+web ()
+{
+    cd ${WEB_DIR}
+    echo "Run command 'python -m SimpleHTTPServer ${WEB_SERVER_PORT}' in path ${WEB_DIR}.You can vist http://localhost:${WEB_SERVER_PORT} to see the page."
+    python -m SimpleHTTPServer ${WEB_SERVER_PORT}
+    cd ${CUR_PATH}
+}
+
+stop ()
+{
+    echo "ps -ax | grep 'stock/app/Stock.py' | awk '{print $1}'"
+    pid=`ps -ax | grep 'stock/app/Stock.py' | awk '{print $1}'`
+    kill -9 $pid
+    echo "PID ${pid}'s server stopped."
+}
+
+refresh ()
+{
+    echo "Start run all module with all date data."
+    if [ -d ${DETAIL_PATH} ];then
+        path=${DETAIL_PATH}
+        echo ">>> ls ${path}| head -1"
+        firstdate=`ls ${path}|head -1`
+    else
+        firstdate='all'
+    fi
+    echo ">>> Stock.py run --from=$firstdate"
+    cd ${APP_HOME}
+    ./Stock.py run --from=$firstdate --ignore=update,compute
+}
+
+log ()
+{
+    tail -f ${SYS_HOME}logs/log.txt
+}
+
+cleanlog()
+{
+    rm  -f ${SYS_HOME}logs/log.txt
+    touch  -f ${SYS_HOME}logs/log.txt
+}
+###########[ 函数封装结束 ]###########
+
+if [ -n "$1" ];then
+    if [[ $1x = "-h"x || $1x = "--help"x ]]; then
+        usage
+    elif [[ $1x = "log"x || $1x = "web"x || $1x = "stop"x || $1x = "refresh"x || $1x = "cleanlog"x ]]; then
+        $1
+    else
+        ${APP_HOME}Stock.py $@
+    fi
+else
+    usage
+fi
+
+exit

@@ -1,0 +1,118 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <title>Strategic</title>
+        <script type="text/javascript" charset="utf-8" src="js/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+        <link rel="stylesheet" href="css/common.css" type="text/css" media="screen" charset="utf-8">
+            
+        </script>
+        <style type="text/css" media="screen">
+            .table{width:100%;table-layout:fixed;empty-cells:show;padding:0;border:0;margin:0;}
+            .bayes_table{width:280px;}
+            .bayes{width:280px;vertical-align:top;}
+            .key{width:120px;}
+            .value{width:160px;}
+        </style>
+    </head>
+    <body>
+        <div id="wrap">
+
+            <!-- 导航栏和菜单 -->
+            <div id="header">
+                <div id="title"><h1>strategic</h1></div>
+                <div id="nav"><a href="index.html" title="报告"><span class="button">report</span></a><span class="button selected">strategic</span></a><a href="statistics.html" title="统计"><span class="button">statistic</span></a><a href="tool.html" title="工具"><span class="button">tool</span></a></div>
+                <div id="menu"><span class="button" onclick="toggleSidebar(event);">显示菜单</span></div>
+
+                <div style="clear:both;"></div>
+            </div>
+
+            <!-- 侧边栏 -->
+             <div id="sidebar">
+                <div class="block">
+                    <span class="button" onclick="oApp.showPre()">&nbsp;&lt;&nbsp;</span>&nbsp;&nbsp;<input type="text" name="date" value="" id="date">&nbsp;&nbsp;<span class="button" onclick="oApp.showNext()">&nbsp;&gt;&nbsp;</span><!--<br>
+                    <input type="input" class="num" name="date_value" id="date_value"><span id="data_by_date" class="button" onclick="oApp.view('#add_date_value')">查看</span>-->
+
+                </div>
+                <div class="block">
+                    <a href="strategic_finder.html" class="sidebar-nav">Strategic Finder</a>
+                    <br>
+                </div>   
+            </div>
+            <!-- 内容 -->
+            <div id="content"></div>
+        </div>
+    </body>
+    <script type="text/javascript" charset="utf-8" src="js/viewport.js"></script>   
+    <script type="text/javascript" charset="utf-8">
+        var strategic=function(options){
+            viewport.call(this,options);
+        }
+        strategic.prototype=$.extend(true,{},viewport.prototype);
+        strategic.prototype.show=function(options){
+            if (typeof options == "undefined")   options={};
+            this.date = options.date || this.date;
+            this.status={"strategic":false,"bayes":false};
+            var me = this;
+            //载入strategic数据
+            this.load(this.datadir+this.date+".json",function(response){
+                    me.data=response;
+                    me.status.strategic=true;
+                    if (me.status.bayes) {
+                        me.afterLoad.call(me,response,options);
+                    }
+                    },options);
+            //载入bayes统计数据
+            this.load(this.bayes_datadir+this.date+".json",function(response){
+                    me.bayesData=response;
+                    me.status.bayes=true;
+                    if (me.status.strategic){
+                        me.afterLoad.call(me,me.data,options);
+                    }
+                    },options);
+            this.changeDateText();
+        }
+        strategic.prototype.formatData=function(options){
+            if (typeof options=="object" && !options.data){
+                data=options;
+            }
+            var fmtData=[];
+            for (var title in data){
+                var total=data[title].length;
+                var resData=[];
+                for(var i=0;i<total;i++){
+                    var code=data[title][i];
+                    resData.push(this.getCodeUrl(code));
+                }
+                var content = "<table class='table'><tr><td>"+resData.join(",&nbsp;&nbsp; ")+"</td><td class='bayes'>"+this.getBayes(title)+"</td></tr></table>"
+                fmtData.push({"title":title,"total":total,"content":content});
+            }
+            return fmtData;
+        }
+        strategic.prototype.getBayes = function(strategic){
+            var bayesContent = "<h4>bayes值</h4><table class='bayes_table'>";
+            if (this.bayesData[strategic]){
+                var bayes=this.bayesData[strategic];
+
+                for (var stat in bayes){
+                    if (bayes[stat]>=0.9){
+                        var value = "<span class='great'>"+ bayes[stat]+"</span><br>";
+                    }else if (bayes[stat]>=0.8){
+                        var value = "<span class='good'>"+ bayes[stat]+"</span><br>";
+                    }else{
+                        var value = "<span>"+bayes[stat]+"</span><br>";
+                    }
+                    bayesContent = bayesContent + "<tr><td class='key'>"+stat +"</td><td class='value' >"+value+"</td></tr>";   
+                }
+            }
+            bayesContent = bayesContent + "</table>";
+            return bayesContent;
+        }
+        //显示信息
+        var oApp=new strategic({
+                "datadir":"data/strategic/",
+                "bayes_datadir":"data/statistics/bayes/"
+                });
+    </script>
+</html>

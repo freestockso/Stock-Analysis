@@ -1,0 +1,13 @@
+#detail 数据的来源
+DETAIL_SOURCE:
+    qq : http://data.gtimg.cn/flashdata/hushen/minute/%s
+    qq2 : http://stock.gtimg.cn/data/index.php?appn=detail&action=download&c=%s&d=%s
+    sina : http://market.finance.sina.com.cn/downxls.php?date=%s&symbol=%s
+
+#info 数据的来源
+INFO_SOURCE:
+    "深市主板" : http://www.cninfo.com.cn/information/sz/mb/szmblclist.html
+    "中小企业版" : http://www.cninfo.com.cn/information/sz/sme/szsmelclist.html
+    "创业板" : http://www.cninfo.com.cn/information/sz/cn/szcnlclist.html
+    "沪市主板" : http://www.cninfo.com.cn/information/sh/mb/shmblclist.html
+

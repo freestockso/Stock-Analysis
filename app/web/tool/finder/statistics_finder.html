@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <title>Statistic Finder</title>
+        <script type="text/javascript" charset="utf-8" src="../../js/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" charset="utf-8" src="../../js/common.js"></script>
+        <link rel="stylesheet" href="../../css/common.css" type="text/css" media="screen" charset="utf-8">
+            
+        </script>
+        <style type="text/css" media="screen">
+            .sub-text{color:gray}
+            .good-strategic{color:green}
+            .great-strategic{color:orange}
+        </style>
+    </head>
+    <body>
+        <div id="wrap">
+
+
+
+
+            <!-- 导航栏和菜单 -->
+            <div id="header">
+                <div id="title"><h1>Statistic Finder</h1></div>
+                <div id="nav"><a href="index.html" title="报告"><span class="button">report</span></a><a href="strategic.html" title="策略"><span class="button">strategic</span></a><span class="button selected">statistic</span><a href="tool.html" title="工具"><span class="button">tool</span></a></div>
+                <div id="menu"><span class="button" onclick="toggleSidebar(event);">显示菜单</span></div>
+
+                <div style="clear:both;"></div>
+            </div>
+
+
+
+
+
+
+            <!-- 侧边栏 -->
+             <div id="sidebar">
+                <div class="block">
+                    <span class="button" onclick="oApp.showPre()">&nbsp;&lt;&nbsp;</span>&nbsp;&nbsp;<input type="text" name="date" value="" id="date">&nbsp;&nbsp;<span class="button" onclick="oApp.showNext()">&nbsp;&gt;&nbsp;</span><!--<br>
+                    <input type="input" class="num" name="date_value" id="date_value"><span id="data_by_date" class="button" onclick="oApp.view('#add_date_value')">查看</span>-->
+                </div>
+                <div class="block">
+                    <a class="sidebar-nav" href="strategic_finder.html">Strategic Finder</a><br>
+                    <a class="sidebar-nav" href="statistics.html">statistics</a>
+                </div>
+            </div>
+
+
+
+
+            <!-- 内容 -->
+            <div id="content">
+
+
+
+            </div>
+
+
+
+
+
+        </div>
+    </body>
+    <script type="text/javascript" charset="utf-8" src="../../js/viewport.js"></script>   
+    <script type="text/javascript" charset="utf-8">
+        var statistic=function(options){
+            viewport.call(this,options);
+        }
+        statistic.prototype=$.extend(true,{},viewport.prototype);
+
+        statistic.prototype.formatData=function(options){
+            if (typeof options=="object" && !options.data){
+                data=options;
+            }
+
+            var fmtData=[];
+
+            for(var i=0;i<data.length;i++){
+                var item=data[i];
+                var title=item.name;
+                var statistic=item.statistic;
+                var content=[];
+                for (var j=0;j<statistic.length;j++){
+                    var statisticItem=statistic[j];
+                    var tmpHtml = statisticItem.name+"&nbsp;:&nbsp;";
+                    if(statisticItem.value>0.8){
+                        tmpHtml+="<span class='great-strategic'>"+statisticItem.value+"</span>";
+                    }else if(statisticItem.value>0.7){
+                        tmpHtml+="<span class='good-strategic'>"+statisticItem.value+"</span>";
+                    }else{
+                        tmpHtml+=statisticItem.value;
+                    }
+                    tmpHtml+='&nbsp;&nbsp;<span class="sub-text">(total:'+statisticItem.total+')</span>';
+                    content.push(tmpHtml);
+                }
+
+                content=content.join("<br>");
+
+                fmtData.push({"title":title,"content":content});
+            }
+
+            return fmtData;
+        }
+
+        //显示信息
+        var oApp=new statistic({
+                "datadir":"../../data/strategic_finder/statistic/"
+                });
+    </script>
+</html>

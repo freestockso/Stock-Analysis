@@ -1,0 +1,150 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <title>Statistic</title>
+        <script type="text/javascript" charset="utf-8" src="js/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+        <link rel="stylesheet" href="css/common.css" type="text/css" media="screen" charset="utf-8">
+
+    </script>
+    <style type="text/css" media="screen">
+        .sub-text{color:gray}
+        .viewDetail{cursor:pointer}
+        .detail{display:none}
+    </style>
+</head>
+<body>
+    <div id="wrap">
+
+
+        <!-- 导航栏和菜单 -->
+        <div id="header">
+            <div id="title"><h1>statistics</h1></div>
+            <div id="nav"><a href="index.html" title="报告"><span class="button">report</span></a><a href="strategic.html" title="策略"><span class="button">strategic</span></a><span class="button selected">statistics</span><a href="tool.html" title="工具"><span class="button">tool</span></a></div>
+            <div id="menu"><span class="button" onclick="toggleSidebar(event);">显示菜单</span></div>
+
+            <div style="clear:both;"></div>
+        </div>
+
+
+        <!-- 侧边栏 -->
+        <div id="sidebar">
+            <div class="block">
+                <span class="button" onclick="oApp.showPre()">&nbsp;&lt;&nbsp;</span>&nbsp;&nbsp;<input type="text" name="date" value="" id="date">&nbsp;&nbsp;<span class="button" onclick="oApp.showNext()">&nbsp;&gt;&nbsp;</span>
+                <hr>
+            </div>   
+        </div>
+
+
+
+
+        <!-- 内容 -->
+        <div id="content">
+
+
+
+        </div>
+
+
+
+
+
+    </div>
+</body>
+<script type="text/javascript" charset="utf-8" src="js/viewport.js"></script>   
+<script type="text/javascript" charset="utf-8">
+    var statistics=function(options){
+        var me =this;
+        this.rawOptions=options;
+        viewport.call(this,options);
+        this.importantItem=["第二天上涨","三天上涨","五日上涨","十日内上涨","十五内上涨","三十日内上涨","五日内涨幅超过5%","五日涨幅超过10%","十日内涨幅超过10%","二十日内涨幅超过20%","三十日内涨幅超过30%"];
+
+        $(".viewDetail").live("click",function(e){
+            me.viewDetail(e);
+            });
+
+    }
+
+statistics.prototype=$.extend(true,{},viewport.prototype);
+
+var sp=statistics.prototype;
+
+sp.formatData=function(data){
+    var fmtData=[];
+    for (var statisticsName in data){
+        var statisticsItem = data[statisticsName];
+        var codeHtml = this.getDetail(statisticsItem.detail);
+        var tmpHtml = "<div class='statistics_block'>"+statisticsName+"&nbsp;:&nbsp;";
+        if(statisticsItem.value>0.9){
+            tmpHtml+="<span class='great'>"+statisticsItem.value+"</span>";
+        }else if(statisticsItem.value>0.8){
+            tmpHtml+="<span class='good'>"+statisticsItem.value+"</span>";
+        }else{
+            tmpHtml+=statisticsItem.value;
+        }
+        tmpHtml+='&nbsp;&nbsp;<span class="sub-text">(total:'+statisticsItem.total;
+        tmpHtml+=codeHtml==''?"":',<span class="viewDetail">详细</span>';
+        tmpHtml+=')</span><br>';
+        tmpHtml+=codeHtml;       
+        tmpHtml+="</div>";
+        fmtData.push({"title":statisticsName,"content":tmpHtml});
+    }
+    return fmtData;
+}
+
+sp.changeViewType=function(e){
+    var event=e||window.event;
+    var target=e.target||e.srcElement;
+    this.show(this.rawOptions);
+}
+
+sp.viewDetail=function(e){
+    var event=e||window.event;
+    var target=e.target||e.srcElement;
+    var el=$(".detail",$(target).parents(".statistics_block"));
+    el.toggle();
+}
+
+sp.getDetail=function(data){
+    var tmpHtml="";
+    for (var date in data){
+        tmpHtml = tmpHtml +"<div class='detail'><h4>"+ date + "</h4>";
+        var detail = data[date];
+        if (detail.matchCode){
+            tmpHtml+="<div class='matchCode block'><h5>matchCode:</h5>";
+        for (var z=0;z<detail.matchCode.length;z++){
+            var mCode=detail.matchCode[z];
+            tmpHtml+=this.getCodeUrl(mCode)+",&nbsp; ";
+            }    
+        tmpHtml+="</div>";
+        }
+
+        if (detail.notMatchCode){
+            tmpHtml+="<div class='notMatchCode block'><h5>notMatchCode</h5>";
+            for (var z=0;z<detail.notMatchCode.length;z++){
+                var mCode=detail.notMatchCode[z];
+                tmpHtml+=this.getCodeUrl(mCode)+",&nbsp; ";
+                }    
+            tmpHtml+="</div>";
+            }
+
+        if (detail.code){
+            tmpHtml+="<div class='code block'><h5>code</h5>";
+            for (var z=0;z<detail.code.length;z++){
+                var mCode=detail.code[z];
+                tmpHtml+=this.getCodeUrl(mCode)+",&nbsp;";
+                }    
+            tmpHtml+="</div>";
+            }
+        tmpHtml =tmpHtml + "</div>"
+    }
+    
+    return tmpHtml;
+}
+//显示信息
+var oApp=new statistics({
+        "datadir":"data/statistics/accuracy/"
+        });
+</script>
+</html>

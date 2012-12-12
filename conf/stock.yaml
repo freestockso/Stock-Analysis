@@ -1,0 +1,56 @@
+#系统日志
+LOG_PATH: logs/log.txt
+
+#数据存放路径
+DATA_PATH: data/
+
+#逐笔成交数据路径
+DETAIL_DATA_PATH: /Volumes/ipod/Stock/data/detail/
+#DETAIL_DATA_PATH: data/detail/
+
+#即时数据储存路径
+INSTANT_DATA_PATH: data/instant/
+INSTANT_MIN_DATA_PATH: data/instant/min/
+INSTANT_REPORT_DATA_PATH: data/instant/report.json
+
+#存放文本文件后缀
+DATA_SUFFIX : .json
+
+#每日收盘价，成交量等成交数据路径
+ADV_DATA_PATH: data/adv/adv.json
+
+#抓取线程模式
+THREAD_MODE: multi
+
+#更新数据最小天数
+MIN_DATA_NUM: 15
+
+#抓取线程数
+THREAD_NUM: 10
+
+#股票代码总数，对应股票名等信息
+INFO_DATA_PATH : data/info/info.json
+
+#所有股票的代码数据
+ALL_CODE_PATH: data/info/codes.json
+
+#股票代码范围
+CODE_RANGE : ([1,999],[2000,2469],[300000,300084],[600001,601369])
+
+#是否显示调试信息
+DEBUG: True
+
+COMPUTE_PROJECT_PATH : app/compute/projects
+STRATEGIC_PROJECT_PATH : app/strategic/projects
+STATISTICS_PROJECT_PATH : app/statistics/projects
+
+STRATEGIC_DATA_PATH : data/strategic/
+STATISTICS_DATA_PATH : data/statistics/
+REPORTER_DATA_PATH : data/reporter/
+BAYES_DATA_PATH : data/statistics/bayes/
+ACCURACY_DATA_PATH : data/statistics/accuracy/
+
+#markov推荐系统配置
+SPLIT_RES_DIR : data/compute/split/
+SPLIT_STAT_RES_DIR : data/compute/stat/
+SPLIT_COMPUTE_RES_PATH : data/compute/compute.txt

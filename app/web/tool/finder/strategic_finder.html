@@ -1,0 +1,276 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <title>Strategic Finder</title>
+        <script type="text/javascript" charset="utf-8" src="../../js/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" charset="utf-8" src="../../js/common.js"></script>
+        <link rel="stylesheet" href="../../css/common.css" type="text/css" media="screen" charset="utf-8">
+            
+        </script>
+        <style type="text/css" media="screen">
+        </style>
+    </head>
+    <body>
+        <div id="wrap">
+
+
+
+
+            <!-- 导航栏和菜单 -->
+            <div id="header">
+                <div id="title"><h1>Strategic Finder</h1></div>
+                <div id="nav"><a href="../../index.html" title="报告"><span class="button">report</span></a><a href="../../strategic.html"><span class="button">strategic</span></a><a href="../../statistics.html" title="统计"><span class="button">statistic</span></a><a href="../../tool.html" title="工具" ><span class="button selected">tool</span></a></div>
+                <div id="menu"><span class="button" onclick="toggleSidebar(event);">显示菜单</span></div>
+
+                <div style="clear:both;"></div>
+            </div>
+
+
+
+
+
+
+            <!-- 侧边栏 -->
+             <div id="sidebar">
+                <div class="block">
+                    <span class="button" onclick="oApp.showPre()">&nbsp;&lt;&nbsp;</span>&nbsp;&nbsp;<input type="text" name="date" value="" id="date">&nbsp;&nbsp;<span class="button" onclick="oApp.showNext()">&nbsp;&gt;&nbsp;</span><!--<br>
+                    <input type="input" class="num" name="date_value" id="date_value"><span id="data_by_date" class="button" onclick="oApp.view('#add_date_value')">查看</span>-->
+                </div>   
+
+                <div class="block">
+                    <hr>
+                    <h4>Finder<span class="forder-icon">-</span></h4>
+                    <span class="sidebar-nav sidebar-selected">Strategic Finder</span><br>
+                    <a href="statistics_finder.html" class="sidebar-nav">Statistics Finder</a><br>
+                    <hr>
+                    <h4>Diff<span class="forder-icon">-</span></h4>
+                    <span class="button" onclick="oApp.diff();">Strategic Diff</span><br>
+                </div>
+
+            </div>
+
+
+
+
+            <!-- 内容 -->
+            <div id="content">
+
+
+
+            </div>
+
+
+
+
+
+        </div>
+    </body>
+    <script type="text/javascript" charset="utf-8" src="../../js/viewport.js"></script>   
+    <script type="text/javascript" charset="utf-8">
+        var strategic=function(options){
+            viewport.call(this,options);
+        }
+        strategic.prototype=$.extend(true,{},viewport.prototype);
+
+        var p=strategic.prototype;
+        p.getCodeInfoUrl=function(options){
+            var code=options;
+            return "http://stockhtm.finance.qq.com/sstock/ggcx/"+code+".shtml";
+        }
+
+        /*
+           {"\u7a81\u783415\u65e5\u5747\u7ebf\u4e14\u7b2c\u4e8c\u5929\u7ad9\u572815\u65e5\u5747\u7ebf\u4e0a\u65b9": ["000002", "000012", "000021", "000039", "000055", "000059", "000061", "600970", "601008"], "\u7a81\u7834\u4e0d\u653e\u91cf": ["002340", "002362", "002369", "002370", "002373", "002383", "300031", "300033", "300081"]}
+        */
+        p.diff=function(options){
+            var rawData=options||this.data;
+            console.log(this.data);
+            console.log(this);
+            //var rawData={"\u7a81\u783415\u65e5\u5747\u7ebf\u4e14\u7b2c\u4e8c\u5929\u7ad9\u572815\u65e5\u5747\u7ebf\u4e0a\u65b9": ["000002", "000012", "000021", "000039", "000055", "000059", "000061", "600970", "300031"], "\u7a81\u7834\u4e0d\u653e\u91cf": ["002340", "002362", "002369", "002370", "002373", "002383", "300031", "000012", "000002"],"texst1":["100010"]};
+            var diffData=[];
+
+            //transfer rawData to data(none)
+            //diff
+            for (var name in rawData){
+                var compareItem1={"name":name,"data":rawData[name]};
+                var pool=rawData[name];
+                var subRes=[]
+                for(var subName in rawData){
+                    if (name!=subName){
+                        var compareItem2={"name":name,"data":rawData[name]};
+                        var subPool=rawData[subName];
+                        var sTitle=name+"和"+subName+"比较";
+                        var oSame=[];
+
+                        //get same code
+                        for (var i=0;i<pool.length;i++){
+                            var code=pool[i];
+                            for (var j=0;j<subPool.length;j++){
+                                var subCode =subPool[j]
+                                
+                                if (code ==subCode){
+                                    oSame.push(code);
+                                }else{
+                                    //pass
+                                }
+                            }
+                        
+                        }
+
+                        //get diff code
+                        if (!oSame) oSame=[0];
+                        var oDiff={};
+
+                        for (var i=0;i<oSame.length;i++){
+                            var sameCode = oSame[i];
+                            for (var j=0;j<pool.length;j++){
+                                var code = pool[j];
+                                if (sameCode == code){
+                                    pool.remove(j);
+                                }
+
+                            }          
+                                                       
+                            for (var j=0;j<subPool.length;j++){
+                                var subCode = subPool[j];
+                                if (sameCode==subCode){
+                                    subPool.remove(j);
+                                }
+                           
+                            }
+                        }
+
+                        if (typeof oDiff[name]=="array"){
+                                oDiff[name].concat(pool);
+                            
+                            }else{
+                                oDiff[name]=pool;
+                            }
+                       
+                        if (typeof oDiff[subName]=="array"){
+                                oDiff[subName].concat(subPool);
+                            
+                            }else{
+                                oDiff[subName]=subPool;
+                            }
+
+
+                            
+
+
+                        subRes.push({"title":sTitle,"data":{"same":oSame,"diff":oDiff}})
+                    }
+                }
+
+                if (subRes){
+
+                    diffData.push({"title":name,"data":subRes});
+                }
+            
+            }
+            
+
+            console.log(diffData)
+
+
+
+            //view
+            
+            if(diffData){
+                var html="";
+                for (var i=0;i<diffData.length;i++){
+                    var item=diffData[i];
+                    console.log(item);
+                    var title=item['title'];
+                    var data=item['data'];
+                    var subHtml="";
+                    for (var j=0;j<data.length;j++){
+                        var subItem=data[j];
+                        var subData=subItem['data'];
+                        var subTitle=subItem['title'];
+                        var diffCodesData=subItem['diff'];
+                        var subItemHtml="";
+                        
+
+
+                        //output same codes html
+                        var sameCodes=subData['same'];
+                        var sameCodesHtml="<h5>相同的股票</h5>";
+                        var sameCodeHtml="<p class='code_block'>";
+                        if(sameCodes){
+                            for (var k=0;k<sameCodes.length;k++){
+                                var sameCode=sameCodes[k];
+                                sameCodeHtml+="&nbsp;&nbsp;<a href='"+this.getCodeInfoUrl(sameCode)+"'>"+sameCode+"</a>";
+                            }
+                        }
+
+                        //output diff codes html
+                        var subDiffData=subData['diff'];
+                        var diffCodesHtml="<h5>不同的股票</h5>";
+                        var diffItemHtml="";
+
+                        for (var diffName in subDiffData){
+                            var subDiffItemData=subDiffData[diffName];
+
+                            var diffItemTitle=diffName+"独有的"+"<br>";
+                            diffItemHtml+=diffItemTitle+"<p class='code_block'>";
+                            for (var l =0;l<subDiffItemData.length;l++){
+                                var diffCode=subDiffItemData[l];
+                                diffItemHtml+="&nbsp;&nbsp;<a href='"+this.getCodeInfoUrl(diffCode)+"'>"+diffCode+"</a>,&nbsp;&nbsp;";
+                            }
+
+                            diffItemHtml+="</p>";
+                        
+                        }
+                        diffCodesHtml+=diffItemHtml;
+                        sameCodeHtml+="</p>";
+                        sameCodesHtml+=sameCodeHtml;
+                        subItemHtml="<h4>"+subTitle+"</h4>"+diffCodesHtml+sameCodesHtml;
+                        subHtml+=subItemHtml
+                    }
+                    html+="<h3>"+title+"</h3>"+subHtml;
+                
+                }
+            }
+            $("#content").html(html);
+
+        }
+
+
+
+
+        strategic.prototype.formatData=function(options){
+            if (typeof options=="object"){
+                if ( typeof options.data=="undefined"){
+                    var data=options;
+                }else{
+                    var data=options.data;
+                }
+            }
+            var fmtData=[];
+                        
+            for (var title in data){
+                var total=data[title].length;
+                var resData=[];
+                for(var i=0;i<total;i++){
+                    var code=data[title][i];
+                    resData.push("<a href='"+this.getCodeInfoUrl(code)+"'>"+code+"</a>");
+                }
+                var content=resData.join(",&nbsp;&nbsp; ");
+                fmtData.push({"title":title,"total":total,"content":content});
+            }
+            return fmtData;
+        }
+
+
+        
+
+        //显示信息
+        var oApp=new strategic({
+                  "datadir":"../../data/strategic_finder/strategic/"
+            //    "datadir":"../../tool/finder/temp/data/strategic/"
+                  });
+
+        console.log(oApp.data)
+    </script>
+</html>

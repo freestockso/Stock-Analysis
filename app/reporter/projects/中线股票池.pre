@@ -1,0 +1,5 @@
+if statistics.get(strategic,{}).get('十日内涨幅超过10%',{}).get("value",0)      > 0.8 \
+   or statistics.get(strategic,{}).get('十五日内涨幅超过15%',{}).get("value",0) > 0.8 \
+   or statistics.get(strategic,{}).get('三十日内涨幅超过30%',{}).get("value",0) > 0.8 \
+   or statistics.get(strategic,{}).get('二十日内涨幅超过20%',{}).get("value",0) > 0.8:
+    result[name].append(strategic)
